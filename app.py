@@ -4,21 +4,20 @@ import numpy as np
 import joblib
 from tensorflow.keras.models import load_model
 
-# ===============================
-# LOAD MODEL & SCALER
-# ===============================
+# ==========================
+# LOAD MODEL, SCALER, COLUMNS
+# ==========================
 model = load_model("model_kelulusan.h5")
 scaler = joblib.load("scaler.pkl")
+columns = joblib.load("columns.pkl")
 
-st.title("Prediksi Kelulusan Siswa Matematika")
-st.write("Aplikasi ini menggunakan model Artificial Neural Network (ANN) untuk memprediksi kelulusan berdasarkan data siswa.")
+st.title("Prediksi Kelulusan Siswa")
+st.write("Model ANN untuk memprediksi kelulusan berdasarkan data siswa.")
 
 
-# ===============================
+# ==========================
 # INPUT USER
-# ===============================
-
-# Semua fitur penting dari dataset student-mat
+# ==========================
 school = st.selectbox("School", ["GP", "MS"])
 sex = st.selectbox("Sex", ["F", "M"])
 age = st.slider("Age", 15, 22, 17)
@@ -36,9 +35,9 @@ health = st.slider("Health (1–5)", 1, 5, 3)
 absences = st.slider("Absences", 0, 93, 2)
 
 
-# ===============================
-# KONVERSI KE DATAFRAME
-# ===============================
+# ==========================
+# CONVERT TO DATAFRAME
+# ==========================
 input_data = {
     "school": school,
     "sex": sex,
@@ -59,16 +58,17 @@ input_data = {
 
 df_input = pd.DataFrame([input_data])
 
-# One-hot encoding sesuai training
+# One-hot encoding dan sesuaikan dengan kolom training
 df_input = pd.get_dummies(df_input)
-df_input = df_input.reindex(columns=scaler.feature_names_in_, fill_value=0)
+df_input = df_input.reindex(columns=columns, fill_value=0)
 
 # Scaling
 X_scaled = scaler.transform(df_input)
 
-# ===============================
+
+# ==========================
 # PREDIKSI
-# ===============================
+# ==========================
 if st.button("Prediksi Kelulusan"):
     pred = model.predict(X_scaled)[0][0]
 
